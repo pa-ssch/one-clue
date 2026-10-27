@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'"
+    >
+    <title>One Clue</title>
+    <meta
+      name="description"
+      content="One Clue – Partyspiel für das Handy: Einer rät, alle anderen geben je ein Wort als Tipp. Ohne App, ohne Anmeldung, direkt im Browser."
+    >
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="One Clue">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body class="app">
+    <main>
+      <!-- Startseite -->
+      <section id="home" class="screen active">
+        <h1>One Clue</h1>
+        <button type="button" class="btn" data-go="guess">Raten</button>
+        <button type="button" class="btn" data-go="tipp">Tipp geben</button>
+        <button type="button" class="btn small-btn" data-go="rules">Wie geht das?</button>
+        <p class="small" id="wordcount"></p>
+        <a class="small" href="impressum.html">Impressum &amp; Datenschutz</a>
+      </section>
+
+      <!-- Spielerklärung -->
+      <section id="rules" class="screen scroll">
+        <div class="stack rules">
+          <h2>So geht's</h2>
+          <ol>
+            <li>Eine Person <b>rät</b>, alle anderen <b>geben Tipps</b>.</li>
+            <li>Der Rater tippt auf <b>Raten</b> und <b>Start</b> und hält das Handy
+              vor die Stirn. Alle anderen sehen den Begriff, der Rater nicht.</li>
+            <li>Jeder Tippgeber tippt auf <b>Tipp geben</b> und schreibt heimlich
+              <b>ein einziges Wort</b> als Hinweis. Enter zeigt es groß an.</li>
+            <li>Alle Tippgeber zeigen sich ihre Handys. <b>Gleiche oder zu ähnliche
+              Tipps</b> werden weggelegt, die zählen nicht.</li>
+            <li>Der Rater nimmt das Handy von der Stirn und sieht die übrigen Tipps.
+              Er hat <b>einen Versuch</b>, den Begriff zu erraten.</li>
+            <li>Dann ist der Nächste mit Raten dran. Neue Runde: einfach die Seite
+              neu laden.</li>
+          </ol>
+          <p class="hint">Nicht erlaubt als Tipp: der Begriff selbst, Teile davon,
+            Übersetzungen oder abgewandelte Schreibweisen.</p>
+          <button type="button" class="btn" data-go="home">Alles klar</button>
+        </div>
+      </section>
+
+      <!-- Raten: Start -->
+      <section id="guess" class="screen scroll">
+        <button type="button" class="corner" data-go="home" aria-label="Zurück">&#8635;</button>
+        <div class="stack">
+          <p class="hint">
+            Nach dem Klick auf <b>Start</b> das Handy mit dem Bildschirm nach
+            außen vor die Stirn halten, sodass alle anderen den Begriff sehen
+            können &ndash; nur du nicht!
+          </p>
+          <div class="categories" id="categories"></div>
+          <button type="button" class="btn big" id="startBtn">Start</button>
+        </div>
+      </section>
+
+      <!-- Raten: Countdown -->
+      <section id="countdown" class="screen">
+        <div class="countdown" id="countNum">3</div>
+      </section>
+
+      <!-- Tipp geben: Eingabe -->
+      <section id="tipp" class="screen">
+        <button type="button" class="corner" data-go="home" aria-label="Zurück">&#8635;</button>
+        <form class="tipp" id="tippForm" autocomplete="off">
+          <label for="tippInput" class="hint">Dein Tipp (ein Wort):</label>
+          <input
+            type="text"
+            id="tippInput"
+            autocapitalize="words"
+            autocorrect="off"
+            spellcheck="false"
+            enterkeyhint="done"
+            maxlength="40"
+          >
+          <button class="btn" type="submit">Zeigen</button>
+        </form>
+      </section>
+
+      <!-- Anzeige des großen Begriffs (für Rater und Tippgeber) -->
+      <section id="show" class="screen">
+        <button type="button" class="corner" data-go="reload" aria-label="Neu laden">
+          &#8635;
+        </button>
+        <div class="word" id="word"></div>
+      </section>
+    </main>
+
+    <script src="categories.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

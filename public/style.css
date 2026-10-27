@@ -1,0 +1,352 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background: #fff;
+  color: #000;
+  color-scheme: light; /* bewusst kein Dark Mode: weiß ist aus der Ferne am besten lesbar */
+  font-family:
+    "Chalkboard SE", "Bradley Hand", "Segoe Print", "Comic Sans MS",
+    "Marker Felt", cursive, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  /* Kein Doppeltipp-Zoom im Spiel, Pinch-Zoom bleibt erlaubt (Barrierefreiheit) */
+  touch-action: manipulation;
+}
+
+/* Spiel-Seite: Vollbild, kein Scrollen, kein Textmarkieren */
+body.app {
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Jede Ansicht füllt den ganzen Bildschirm, Inhalt mittig */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  padding: max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  text-align: center;
+}
+.screen.active {
+  display: flex;
+}
+
+h1 {
+  font-size: clamp(2rem, 8vmin, 3.5rem);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-decoration: underline wavy;
+  text-underline-offset: 0.2em;
+  margin-bottom: 0.5rem;
+}
+
+p.hint {
+  font-size: clamp(1rem, 3.2vmin, 1.4rem);
+  line-height: 1.4;
+  max-width: 32rem;
+}
+
+/* Skizzenhafte Buttons: unregelmäßiger Rand, leicht schief */
+.btn {
+  appearance: none;
+  background: #fff;
+  color: #000;
+  border: 3px solid #000;
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  box-shadow: 3px 3px 0 #000;
+  font: inherit;
+  font-size: clamp(1.4rem, 5vmin, 2rem);
+  padding: 0.6em 1.6em;
+  min-width: min(70vw, 18rem);
+  cursor: pointer;
+  transform: rotate(-0.6deg);
+  transition:
+    transform 0.08s,
+    box-shadow 0.08s;
+}
+.btn:nth-of-type(even) {
+  transform: rotate(0.7deg);
+  border-radius: 15px 225px 15px 255px / 255px 15px 225px 15px;
+}
+.btn:active {
+  transform: translate(2px, 2px) rotate(0deg);
+  box-shadow: 1px 1px 0 #000;
+}
+.btn.big {
+  font-size: clamp(2rem, 8vmin, 3rem);
+  padding: 0.5em 1.4em;
+}
+
+.btn.small-btn {
+  font-size: clamp(1rem, 3.4vmin, 1.3rem);
+  padding: 0.4em 1.2em;
+  min-width: 0;
+  box-shadow: 2px 2px 0 #000;
+}
+
+/* Spielerklärung */
+.rules {
+  max-width: 32rem;
+  text-align: left;
+  align-items: stretch;
+}
+.rules h2 {
+  font-size: clamp(1.5rem, 6vmin, 2.2rem);
+  font-weight: 400;
+  text-align: center;
+  text-decoration: underline wavy;
+  text-underline-offset: 0.2em;
+}
+.rules ol {
+  padding-left: 1.4em;
+  font-size: clamp(1rem, 3.2vmin, 1.25rem);
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.rules .hint {
+  font-size: clamp(0.9rem, 2.8vmin, 1.1rem);
+  opacity: 0.75;
+}
+.rules .btn {
+  align-self: center;
+}
+
+/* Dezenter Zurück/Neuladen-Knopf in der Ecke */
+.corner {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  width: 44px;
+  height: 44px;
+  border: 2px solid #000;
+  border-radius: 50% 45% 55% 50% / 45% 55% 45% 55%;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  font-size: 24px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  cursor: pointer;
+  z-index: 10;
+}
+.corner:active {
+  opacity: 1;
+}
+
+/* Großer Begriff: wird per JS auf die Bildschirmbreite skaliert */
+.word {
+  width: 100%;
+  white-space: nowrap;
+  line-height: 1.3;
+  font-weight: 700;
+  overflow: visible;
+  text-align: center;
+}
+
+.countdown {
+  font-size: 60vmin;
+  line-height: 1;
+  font-weight: 700;
+}
+
+/* Eingabe für Tippgeber */
+form.tipp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 28rem;
+}
+input[type="text"] {
+  width: 100%;
+  font: inherit;
+  font-size: clamp(1.4rem, 5vmin, 2rem);
+  padding: 0.5em 0.8em;
+  border: 3px solid #000;
+  border-radius: 15px 255px 15px 225px / 225px 15px 255px 15px;
+  background: #fff;
+  color: #000;
+  text-align: center;
+  outline: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+input[type="text"]:focus {
+  box-shadow: 3px 3px 0 #000;
+}
+
+.small {
+  font-size: clamp(0.85rem, 2.6vmin, 1rem);
+  opacity: 0.6;
+}
+
+/* Scrollbare Ansicht, falls der Inhalt (z. B. viele Kategorien) nicht passt */
+.screen.scroll {
+  overflow-y: auto;
+  justify-content: flex-start;
+}
+.screen.scroll .stack {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  width: 100%;
+}
+
+/* Kategorien-Checkboxen */
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 0.8rem;
+  max-width: 32rem;
+}
+.cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: clamp(1rem, 3.4vmin, 1.3rem);
+  border: 2px solid #000;
+  border-radius: 15px 225px 15px 255px / 255px 15px 225px 15px;
+  padding: 0.3em 0.9em 0.3em 0.7em;
+  min-height: 44px; /* Touch-Ziel */
+  cursor: pointer;
+}
+.cat input {
+  width: 1.2em;
+  height: 1.2em;
+  margin: 0;
+  accent-color: #000;
+  cursor: pointer;
+}
+.cat:has(input:checked) {
+  box-shadow: 2px 2px 0 #000;
+}
+.cat.shake {
+  animation: shake 0.3s;
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Querformat: Inhalt etwas kompakter */
+@media (orientation: landscape) and (max-height: 500px) {
+  .screen,
+  .screen.scroll .stack {
+    gap: 0.7rem;
+  }
+  h1 {
+    margin-bottom: 0;
+  }
+  .btn {
+    padding: 0.35em 1.4em;
+  }
+  .btn.big {
+    padding: 0.3em 1.2em;
+  }
+}
+/* Kleiner Link am Fuß der Startseite */
+a.small {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  padding: 0.6em 1em; /* Touch-Ziel */
+  margin-top: -0.6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cat.shake {
+    animation: none;
+  }
+  .btn,
+  .btn:active {
+    transition: none;
+  }
+}
+
+/* Textseiten (Impressum, Datenschutz): normales, scrollbares Dokument */
+body.page {
+  height: auto;
+  min-height: 100%;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(32px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+body.page main {
+  max-width: 36rem;
+  margin: 0 auto;
+  font-size: clamp(1rem, 3vmin, 1.15rem);
+  line-height: 1.5;
+}
+body.page h1 {
+  text-align: center;
+  margin: 1rem 0 1.5rem;
+}
+body.page h2 {
+  font-size: clamp(1.3rem, 5vmin, 1.7rem);
+  font-weight: 400;
+  margin: 2rem 0 0.6rem;
+  text-decoration: underline wavy;
+  text-underline-offset: 0.2em;
+}
+body.page h3 {
+  font-size: 1.1em;
+  font-weight: 700;
+  margin: 1.2em 0 0.3em;
+}
+body.page p,
+body.page ul {
+  margin-bottom: 0.8em;
+}
+body.page ul {
+  padding-left: 1.4em;
+}
+body.page a {
+  color: inherit;
+}
+body.page address {
+  font-style: normal;
+}
+a.btn {
+  display: inline-block;
+  text-decoration: none;
+}
+body.page .back {
+  display: flex;
+  justify-content: center;
+  margin: 2.5rem 0 1rem;
+}
+body.page .todo {
+  background: #fff3b0;
+  padding: 0.1em 0.3em;
+}
+
