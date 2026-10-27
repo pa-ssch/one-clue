@@ -33,6 +33,22 @@
         <button type="button" class="btn small-btn" data-go="rules">Wie geht das?</button>
         <p class="small" id="wordcount"></p>
         <a class="small" href="impressum.html">Impressum &amp; Datenschutz</a>
+
+        <!-- Hinweis "App hinzufügen": Android/Chrome mit echtem Install-Dialog,
+             iOS nur mit Anleitung. Wird per app.js ein- und ausgeblendet. -->
+        <div class="install" id="install">
+          <p class="install-text" id="installPrompt" hidden>
+            Offline spielen? One Clue als App hinzufügen.
+          </p>
+          <p class="install-text" id="installIos" hidden>
+            Offline spielen? Tippe unten auf <b>Teilen</b> und dann auf
+            <b>„Zum Home-Bildschirm“</b>.
+          </p>
+          <div class="install-actions">
+            <button type="button" class="btn small-btn" id="installBtn" hidden>Hinzufügen</button>
+            <button type="button" class="btn small-btn" id="installDismiss">Nein, danke</button>
+          </div>
+        </div>
       </section>
 
       <!-- Spielerklärung -->

@@ -275,6 +275,42 @@ input[type="text"]:focus {
     padding: 0.3em 1.2em;
   }
 }
+/* Hinweis "App hinzufügen" am Fuß der Startseite, nur sichtbar mit .open */
+.install {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  max-width: 24rem;
+  margin-top: 0.4rem;
+  padding: 0.8rem 1rem 0.9rem;
+  border: 2px dashed #000;
+  border-radius: 15px 225px 15px 255px / 255px 15px 225px 15px;
+}
+.install.open {
+  display: flex;
+}
+/* Im flachen Querformat passt der Hinweis nicht mehr unter die Buttons */
+@media (orientation: landscape) and (max-height: 500px) {
+  .install.open {
+    display: none;
+  }
+}
+.install [hidden] {
+  display: none;
+}
+.install-text {
+  font-size: clamp(0.95rem, 3vmin, 1.15rem);
+  line-height: 1.35;
+}
+.install-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem 0.8rem;
+}
+
 /* Kleiner Link am Fuß der Startseite */
 a.small {
   color: inherit;

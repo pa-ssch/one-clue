@@ -2,7 +2,7 @@
 // Strategie: erst Netz, bei Fehler Cache. So sind Änderungen sofort sichtbar,
 // und ohne Empfang läuft die zuletzt geladene Version weiter.
 // Bei Änderungen an den Dateien unten die VERSION hochzählen.
-var VERSION = "one-clue-v2";
+var VERSION = "one-clue-v3";
 var FILES = [
   "./",
   "index.html",

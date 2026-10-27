@@ -69,6 +69,12 @@ Hinweise:
   umbenannte Kategorie wird dabei automatisch ignoriert.
 - Bereits gezeigte Begriffe merkt sich jedes Handy ebenfalls im `localStorage`.
   Erst wenn alle Begriffe der gewählten Kategorien durch sind, fängt es von vorn an.
+- Auf der Startseite erscheint ein Hinweis „App hinzufügen“, damit das Spiel
+  offline läuft. Auf Android/Chrome öffnet der Button den echten Install-Dialog
+  des Browsers (`beforeinstallprompt`). iOS bietet dafür keine Schnittstelle,
+  dort steht nur die Anleitung „Teilen → Zum Home-Bildschirm“. Der Hinweis
+  kommt nicht in der installierten App (Standalone-Modus), nicht nach „Nein,
+  danke“ (dritter `localStorage`-Eintrag) und nicht im flachen Querformat.
 - Nach jeder Änderung an einer Datei in `public/` die `VERSION` in
   `public/sw.js` hochzählen, damit Handys mit zwischengespeicherter Version die
   neue Fassung beim nächsten Aufruf übernehmen. Die CI lehnt Änderungen ohne
@@ -94,12 +100,15 @@ npm run check:sw      # wurde VERSION in sw.js nach Änderungen in public/ hochg
 Die Tests in `test/` prüfen Laden, Kategorien, Countdown, Begriffsauswahl ohne
 Wiederholung, Tipp-Eingabe, Schriftanpassung bei langen Begriffen, Querformat,
 Barrierefreiheit (axe-core), Offline-Betrieb, interne Verweise, Impressum,
-Datenqualität und Fehlerfälle.
+Datenqualität und Fehlerfälle. `test/install.test.js` prüft den Hinweis „App
+hinzufügen“: Android-Variante mit simuliertem `beforeinstallprompt`, iOS-Anleitung
+auf Safari, nichts im Standalone-Modus, nichts mehr nach „Nein, danke“.
 
 `test/security.test.js` prüft, dass die Datenschutzerklärung stimmt und die
 Seite robust ist: Während eines kompletten Spieldurchlaufs verlässt kein Request
 die eigene Adresse, es entstehen keine Cookies, und im Browser liegen genau die
-zwei genannten Local-Storage-Einträge. Kaputte oder manipulierte Einträge im
+zwei genannten Local-Storage-Einträge; nach „Nein, danke“ beim Install-Hinweis
+genau der dritte dazu. Kaputte oder manipulierte Einträge im
 Local Storage dürfen das Spiel nicht zum Absturz bringen. Im Quelltext sind
 `innerHTML`, `eval` und ähnliche Sinks, Inline-Skripte und externe Adressen
 (außer dem Link in der Datenschutzerklärung) verboten.
@@ -135,11 +144,6 @@ Die verwendeten GitHub Actions sind auf Commit-SHAs festgenagelt, damit ein
 kompromittiertes Action-Release nicht unbemerkt etwas anderes veröffentlichen
 kann. Dependabot (`.github/dependabot.yml`) hält die SHAs und die
 Test-Werkzeuge wöchentlich aktuell.
-
-Die Domain `9xb.de` sollte im GitHub-Konto unter *Settings → Pages → Verified
-domains* verifiziert sein. Sonst könnte jemand anderes `1clue.9xb.de` für
-seine eigene Pages-Seite beanspruchen, falls diese Seite einmal gelöscht oder
-umbenannt wird, während der DNS-Eintrag bestehen bleibt.
 
 ## Lizenz
 

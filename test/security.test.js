@@ -51,6 +51,14 @@ test.describe("Was die Datenschutzerklärung verspricht", () => {
     expect(storage.local).toEqual(["oneclue-categories", "oneclue-used"]);
     expect(storage.session).toBe(0);
   });
+
+  test("nach „Nein, danke“ beim Install-Hinweis kommt genau der dritte genannte Eintrag dazu", async ({ page }) => {
+    await playThrough(page);
+    await page.evaluate(() => window.dispatchEvent(new Event("beforeinstallprompt", { cancelable: true })));
+    await page.click("#installDismiss");
+    const keys = await page.evaluate(() => Object.keys(localStorage).sort());
+    expect(keys).toEqual(["oneclue-categories", "oneclue-install-dismissed", "oneclue-used"]);
+  });
 });
 
 test.describe("Kaputter Speicher stürzt nicht ab", () => {

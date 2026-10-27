@@ -304,6 +304,73 @@
     navigator.serviceWorker.register("sw.js").catch(function () {});
   }
 
+  // ---------- Hinweis "App zum Home-Bildschirm hinzufügen" ----------
+  // Android/Chrome melden per beforeinstallprompt, dass die App installierbar
+  // ist; dann gibt es einen Button, der den echten Install-Dialog öffnet.
+  // iOS kennt das nicht, dort wird nur erklärt, wie es per Teilen-Menü geht.
+  // Nie in der installierten App (Standalone) und nie mehr nach "Nein, danke".
+  var INSTALL_KEY = "oneclue-install-dismissed";
+  var installEvent = null;
+
+  function isStandalone() {
+    return (
+      navigator.standalone === true ||
+      (typeof window.matchMedia === "function" &&
+        window.matchMedia("(display-mode: standalone)").matches)
+    );
+  }
+  function isIOS() {
+    return (
+      /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+      // iPadOS gibt sich als Mac aus, hat aber einen Touchscreen
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+    );
+  }
+  function installDismissed() {
+    try {
+      return localStorage.getItem(INSTALL_KEY) === "1";
+    } catch (e) {
+      return false;
+    }
+  }
+  function showInstall(withButton) {
+    if (isStandalone() || installDismissed()) return;
+    $("installPrompt").hidden = !withButton;
+    $("installIos").hidden = withButton;
+    $("installBtn").hidden = !withButton;
+    $("install").classList.add("open");
+  }
+  function hideInstall() {
+    $("install").classList.remove("open");
+  }
+
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault(); // Chromes eigenen Mini-Hinweis unterdrücken, wir zeigen unseren
+    installEvent = e;
+    showInstall(true);
+  });
+  window.addEventListener("appinstalled", function () {
+    installEvent = null;
+    hideInstall();
+  });
+  $("installBtn").addEventListener("click", function () {
+    var ev = installEvent;
+    if (!ev) return;
+    installEvent = null;
+    hideInstall(); // prompt() geht pro Event nur einmal, danach meldet sich Chrome neu
+    try {
+      ev.prompt().catch(function () {});
+    } catch (e) {}
+  });
+  $("installDismiss").addEventListener("click", function () {
+    try {
+      localStorage.setItem(INSTALL_KEY, "1");
+    } catch (e) {}
+    hideInstall();
+  });
+  // Ohne Install-Event (iOS) sofort die Anleitung zeigen
+  if (isIOS() && !("onbeforeinstallprompt" in window)) showInstall(false);
+
   buildCategoryList();
   // Eindeutige Begriffe zählen (ein Wort kann in mehreren Kategorien stehen)
   var unique = [];
