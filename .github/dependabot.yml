@@ -1,0 +1,15 @@
+# Hält Test-Werkzeuge und die auf SHAs festgenagelten Actions aktuell.
+# Die App selbst hat keine Abhängigkeiten.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      test-werkzeuge:
+        patterns: ["*"] # alle npm-Updates in einem Pull Request
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

@@ -56,4 +56,14 @@ async function showTipp(page, text) {
   await page.locator("#show.active").waitFor();
 }
 
-module.exports = { CATEGORIES, DEFAULT_OFF, watchErrors, fits, drawWord, showTipp };
+// Alle Dateien unter dir, rekursiv, relativ mit "/" als Trenner; Punkt-Dateien (.DS_Store) ausgenommen
+function listFiles(dir, prefix = "") {
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .filter((e) => !e.name.startsWith("."))
+    .flatMap((e) =>
+      e.isDirectory() ? listFiles(path.join(dir, e.name), prefix + e.name + "/") : [prefix + e.name],
+    );
+}
+
+module.exports = { CATEGORIES, DEFAULT_OFF, watchErrors, fits, drawWord, showTipp, listFiles };

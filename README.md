@@ -38,9 +38,9 @@ public/
 └── CNAME                 die Domain für GitHub Pages
 ```
 
-Alles außerhalb von `public/` (`test/`, `.github/`, `package.json`,
-`playwright.config.js`) ist Test- und Deploy-Werkzeug. Die App selbst braucht
-davon nichts.
+Alles außerhalb von `public/` (`test/`, `scripts/`, `.github/`, `package.json`,
+`playwright.config.js`, `playwright.live.config.js`) ist Test- und
+Deploy-Werkzeug. Die App selbst braucht davon nichts.
 
 ## Kategorie ergänzen
 
@@ -71,7 +71,9 @@ Hinweise:
   Erst wenn alle Begriffe der gewählten Kategorien durch sind, fängt es von vorn an.
 - Nach jeder Änderung an einer Datei in `public/` die `VERSION` in
   `public/sw.js` hochzählen, damit Handys mit zwischengespeicherter Version die
-  neue Fassung beim nächsten Aufruf übernehmen.
+  neue Fassung beim nächsten Aufruf übernehmen. Die CI lehnt Änderungen ohne
+  hochgezählte `VERSION` ab; `npm run check:sw` prüft das lokal gegen
+  `origin/main`.
 
 ## Entwickeln und testen
 
@@ -85,6 +87,8 @@ npm run dev           # lokaler Server auf http://127.0.0.1:8765, öffnet den Br
 npm test              # alle Browser-Tests (Handy-Chrome, Handy-Safari, Desktop)
 npm run test:ui       # Tests interaktiv im Playwright-Fenster
 npm run test:report   # letzten HTML-Report öffnen
+npm run test:live     # veröffentlichte Seite prüfen (braucht Internet, siehe unten)
+npm run check:sw      # wurde VERSION in sw.js nach Änderungen in public/ hochgezählt?
 ```
 
 Die Tests in `test/` prüfen Laden, Kategorien, Countdown, Begriffsauswahl ohne
@@ -92,12 +96,50 @@ Wiederholung, Tipp-Eingabe, Schriftanpassung bei langen Begriffen, Querformat,
 Barrierefreiheit (axe-core), Offline-Betrieb, interne Verweise, Impressum,
 Datenqualität und Fehlerfälle.
 
+`test/security.test.js` prüft, dass die Datenschutzerklärung stimmt und die
+Seite robust ist: Während eines kompletten Spieldurchlaufs verlässt kein Request
+die eigene Adresse, es entstehen keine Cookies, und im Browser liegen genau die
+zwei genannten Local-Storage-Einträge. Kaputte oder manipulierte Einträge im
+Local Storage dürfen das Spiel nicht zum Absturz bringen. Im Quelltext sind
+`innerHTML`, `eval` und ähnliche Sinks, Inline-Skripte und externe Adressen
+(außer dem Link in der Datenschutzerklärung) verboten.
+
+## Live-Prüfung
+
+`npm run test:live` prüft die veröffentlichte Seite unter
+[1clue.9xb.de](https://1clue.9xb.de) (andere Adresse: `LIVE_URL=https://...`):
+
+- HTTP leitet dauerhaft auf HTTPS um, das Zertifikat ist vertrauenswürdig und
+  noch mindestens 14 Tage gültig, es werden keine Cookies gesetzt.
+- Jede Datei aus `public/` wird live byte-identisch ausgeliefert. Nach einem
+  Deploy wird bis zu `LIVE_WAIT_MS` Millisekunden (Standard 30 Sekunden) auf den
+  neuen Stand gewartet, weil der CDN-Cache kurz nachhängen kann. Lokal schlägt
+  die Prüfung erwartungsgemäß fehl, solange eigene Änderungen noch nicht
+  veröffentlicht sind.
+- Das Spiel lädt live ohne Fehler, kein Request verlässt die Adresse, ein Tipp
+  wird angezeigt.
+
+Die Prüfung läuft automatisch nach jedem Deploy, jede Nacht und auf Knopfdruck
+über den Workflow `.github/workflows/live-check.yml` (Actions, „Live-Check“,
+„Run workflow“).
+
 ## Veröffentlichung
 
 Der Workflow in `.github/workflows/ci.yml` läuft bei jedem Push und Pull
 Request. Bei einem Push auf `main` wird nach bestandenen Tests der Ordner
-`public/` automatisch auf GitHub Pages veröffentlicht. Schlägt ein Test fehl,
-wird nicht deployt.
+`public/` automatisch auf GitHub Pages veröffentlicht. Schlägt ein Test fehl
+oder wurde `VERSION` in `public/sw.js` nicht hochgezählt, wird nicht deployt.
+Nach dem Deploy läuft die Live-Prüfung gegen die veröffentlichte Seite.
+
+Die verwendeten GitHub Actions sind auf Commit-SHAs festgenagelt, damit ein
+kompromittiertes Action-Release nicht unbemerkt etwas anderes veröffentlichen
+kann. Dependabot (`.github/dependabot.yml`) hält die SHAs und die
+Test-Werkzeuge wöchentlich aktuell.
+
+Die Domain `9xb.de` sollte im GitHub-Konto unter *Settings → Pages → Verified
+domains* verifiziert sein. Sonst könnte jemand anderes `1clue.9xb.de` für
+seine eigene Pages-Seite beanspruchen, falls diese Seite einmal gelöscht oder
+umbenannt wird, während der DNS-Eintrag bestehen bleibt.
 
 ## Lizenz
 

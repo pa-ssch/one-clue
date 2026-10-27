@@ -6,6 +6,7 @@ const PORT = 8765;
 
 module.exports = defineConfig({
   testDir: "./test",
+  testIgnore: /live\.test\.js$/, // Live-Prüfung läuft separat: npm run test:live
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

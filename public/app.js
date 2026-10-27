@@ -27,10 +27,15 @@
   // möglichst nichts wiederholt. Wenn alle durch sind, wird zurückgesetzt.
   function loadUsed() {
     try {
-      return JSON.parse(localStorage.getItem(USED_KEY) || "[]");
-    } catch (e) {
-      return [];
-    }
+      var saved = JSON.parse(localStorage.getItem(USED_KEY) || "[]");
+      // Nur ein Array aus Strings ist brauchbar. Alles andere (z. B. von Hand
+      // veränderter Speicher) wird verworfen, statt den Start abstürzen zu lassen.
+      if (Array.isArray(saved))
+        return saved.filter(function (w) {
+          return typeof w === "string";
+        });
+    } catch (e) {}
+    return [];
   }
   function saveUsed(list) {
     try {
