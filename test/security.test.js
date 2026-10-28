@@ -13,9 +13,10 @@ async function playThrough(page) {
   await page.click('[data-go="rules"]');
   await page.click('#rules [data-go="home"]');
   await page.click('[data-go="guess"]');
-  const first = page.locator("#categories input").first();
-  await first.uncheck();
-  await first.check();
+  // Zweite Kategorie dazu- und wieder abschalten (die erste ist die einzige vorausgewählte)
+  const second = page.locator("#categories input").nth(1);
+  await second.check();
+  await second.uncheck();
   await drawWord(page);
   await page.click("#show .corner");
   await page.waitForLoadState("load");

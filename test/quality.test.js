@@ -79,8 +79,10 @@ test.describe("Impressum und Datenschutz", () => {
     await page.click('a[href="impressum.html"]');
     await expect(page).toHaveTitle(/Impressum/);
     const text = await page.locator("main").innerText();
-    await expect(page.locator('a[href="mailto:1clue@9xb.de"]')).toBeVisible();
-    for (const s of ["9xb", "Silas Schnurr", "Theodor-Heuss-Straße 14", "77815 Bühl", "nicht kommerzielles Angebot", "Haftungsausschluss", "Datenschutzerklärung", "GitHub Pages", "Local Storage"]) {
+    // Die Adresse steht im Kontakt-Abschnitt und nochmal beim Hinweis auf Community-Begriffe
+    await expect(page.locator('a[href="mailto:1clue@9xb.de"]')).toHaveCount(2);
+    await expect(page.locator('a[href="mailto:1clue@9xb.de"]').first()).toBeVisible();
+    for (const s of ["9xb", "Silas Schnurr", "Theodor-Heuss-Straße 14", "77815 Bühl", "nicht kommerzielles Angebot", "Haftungsausschluss", "Community", "nicht einzeln geprüft", "Datenschutzerklärung", "GitHub Pages", "Local Storage"]) {
       expect(text, s).toContain(s);
     }
     await page.click("a.btn");

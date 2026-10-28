@@ -4,8 +4,8 @@ const path = require("path");
 
 // Kategorien direkt aus categories.js laden (gleiche Quelle wie die Seite)
 const src = fs.readFileSync(path.join(__dirname, "..", "public", "categories.js"), "utf8");
-const { CATEGORIES, DEFAULT_OFF } = new Function(
-  src + ";return { CATEGORIES: CATEGORIES, DEFAULT_OFF: DEFAULT_OFF };",
+const { CATEGORIES, DEFAULT_ON } = new Function(
+  src + ";return { CATEGORIES: CATEGORIES, DEFAULT_ON: DEFAULT_ON };",
 )();
 
 // Sammelt Konsolenfehler und fehlgeschlagene Requests einer Seite
@@ -66,4 +66,4 @@ function listFiles(dir, prefix = "") {
     );
 }
 
-module.exports = { CATEGORIES, DEFAULT_OFF, watchErrors, fits, drawWord, showTipp, listFiles };
+module.exports = { CATEGORIES, DEFAULT_ON, watchErrors, fits, drawWord, showTipp, listFiles };

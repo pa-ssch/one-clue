@@ -1,8 +1,8 @@
 const { test, expect } = require("@playwright/test");
-const { CATEGORIES, DEFAULT_OFF, watchErrors, fits, drawWord, showTipp } = require("./helpers");
+const { CATEGORIES, DEFAULT_ON, watchErrors, fits, drawWord, showTipp } = require("./helpers");
 
 const ALL = Object.keys(CATEGORIES);
-const DEFAULT_ON = ALL.filter((c) => !DEFAULT_OFF.includes(c));
+const poolOf = (cats) => new Set(cats.flatMap((c) => CATEGORIES[c])).size;
 const UNIQUE = new Set(ALL.flatMap((c) => CATEGORIES[c])).size;
 
 test.describe("Laden und Startseite", () => {
@@ -62,11 +62,11 @@ test.describe("Kategorien", () => {
     await page.click('[data-go="guess"]');
   });
 
-  test("werden aus categories.js erzeugt, Reihenfolge erhalten, Standardauswahl ohne NSFW", async ({ page }) => {
+  test("werden aus categories.js erzeugt, Reihenfolge erhalten, nur Standard vorausgewählt", async ({ page }) => {
     const labels = page.locator("#categories label");
     await expect(labels).toHaveCount(ALL.length);
     expect(await labels.allTextContents()).toEqual(ALL.map((n) => " " + n));
-    expect(DEFAULT_OFF).toContain("NSFW");
+    expect(DEFAULT_ON).toEqual(["Standard"]);
     for (const n of ALL) {
       const box = page.locator(`#categories input[value="${n}"]`);
       if (DEFAULT_ON.includes(n)) await expect(box).toBeChecked();
@@ -75,8 +75,12 @@ test.describe("Kategorien", () => {
   });
 
   test("Auswahl wird gespeichert, letzte Kategorie bleibt aktiv", async ({ page }) => {
-    const [keep, ...others] = DEFAULT_ON;
-    for (const n of others) await page.uncheck(`#categories input[value="${n}"]`);
+    const [keep, other] = ALL;
+    await page.check(`#categories input[value="${other}"]`);
+    expect(await page.evaluate(() => localStorage.getItem("oneclue-categories"))).toBe(
+      JSON.stringify([keep, other]),
+    );
+    await page.uncheck(`#categories input[value="${other}"]`);
     expect(await page.evaluate(() => localStorage.getItem("oneclue-categories"))).toBe(
       JSON.stringify([keep]),
     );
@@ -103,6 +107,34 @@ test.describe("Kategorien", () => {
       expect(checked, `Speicherinhalt ${bad}`).toEqual(DEFAULT_ON);
       expect(errors).toEqual([]);
     }
+  });
+
+  test("Begriffszähler folgt der Auswahl und den gezeigten Begriffen", async ({ page }) => {
+    const count = page.locator("#poolcount");
+    await expect(count).toHaveText(`${poolOf(DEFAULT_ON)} Begriffe`);
+    const extra = ALL.find((c) => !DEFAULT_ON.includes(c));
+    await page.check(`#categories input[value="${extra}"]`);
+    await expect(count).toHaveText(`${poolOf([...DEFAULT_ON, extra])} Begriffe`);
+    // Eine Kategorie allein, davon drei Begriffe schon gezeigt und einer aus einer anderen Kategorie
+    const small = ALL[ALL.length - 1];
+    const shown = CATEGORIES[small].slice(0, 3);
+    const foreign = CATEGORIES[ALL[0]].find((w) => !CATEGORIES[small].includes(w));
+    await page.evaluate(
+      ([c, used]) => {
+        localStorage.setItem("oneclue-categories", JSON.stringify([c]));
+        localStorage.setItem("oneclue-used", JSON.stringify(used));
+      },
+      [small, [...shown, foreign]],
+    );
+    await page.reload();
+    await page.click('[data-go="guess"]');
+    const n = CATEGORIES[small].length;
+    await expect(count).toHaveText(`${n} Begriffe, davon ${n - 3} noch nicht gezeigt`);
+    // Alle gezeigt
+    await page.evaluate((used) => localStorage.setItem("oneclue-used", JSON.stringify(used)), CATEGORIES[small]);
+    await page.reload();
+    await page.click('[data-go="guess"]');
+    await expect(count).toHaveText(`${n} Begriffe, alle schon gezeigt`);
   });
 
   test("Chips und Start-Button sind ausreichend große Touch-Ziele", async ({ page }) => {

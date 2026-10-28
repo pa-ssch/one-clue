@@ -58,11 +58,12 @@
         if (valid.length > 0) return valid;
       }
     } catch (e) {}
-    // Standard: alle außer den in DEFAULT_OFF genannten (z. B. NSFW)
-    var off =
-      typeof DEFAULT_OFF !== "undefined" && Array.isArray(DEFAULT_OFF) ? DEFAULT_OFF : [];
+    // Standard: nur die in DEFAULT_ON genannten Kategorien; neue oder
+    // besondere Kategorien muss man bewusst dazuschalten
+    var on =
+      typeof DEFAULT_ON !== "undefined" && Array.isArray(DEFAULT_ON) ? DEFAULT_ON : [];
     var def = all.filter(function (c) {
-      return off.indexOf(c) === -1;
+      return on.indexOf(c) !== -1;
     });
     return def.length > 0 ? def : all.slice();
   }
@@ -88,6 +89,21 @@
       label.appendChild(document.createTextNode(" " + name));
       box.appendChild(label);
     });
+    updatePoolCount();
+  }
+
+  // Unter den Kategorien zeigen, wie groß der Pool der Auswahl ist und
+  // wie viele Begriffe davon auf diesem Handy noch nicht gezeigt wurden
+  function updatePoolCount() {
+    var words = activeWords();
+    var used = loadUsed();
+    var left = words.filter(function (w) {
+      return used.indexOf(w) === -1;
+    }).length;
+    var text = words.length === 1 ? "1 Begriff" : words.length + " Begriffe";
+    if (left === 0) text += ", alle schon gezeigt";
+    else if (left < words.length) text += ", davon " + left + " noch nicht gezeigt";
+    $("poolcount").textContent = text;
   }
 
   function selectedFromUI() {
@@ -109,6 +125,7 @@
       return;
     }
     saveSelected(list);
+    updatePoolCount();
   }
 
   function activeWords() {

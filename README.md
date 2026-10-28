@@ -20,6 +20,9 @@ Wort als Tipp. Läuft direkt im Browser, ohne App, ohne Anmeldung, auch offline.
 Der runde Pfeil oben rechts führt zurück bzw. lädt die Seite für die nächste
 Runde neu.
 
+Jedes Handy merkt sich nur die Begriffe, die es selbst gezeigt hat. Wenn
+Begriffe doppelt kommen, am besten immer dasselbe Handy zum Raten weiterreichen.
+
 ## Aufbau
 
 Statische Seite ohne Build-Schritt und ohne Bibliotheken. Alles, was
@@ -62,13 +65,16 @@ Schlüsseln erzeugt, die Reihenfolge im Objekt ist die Anzeige-Reihenfolge.
 
 Hinweise:
 
-- Mindestens eine Kategorie muss ausgewählt sein. Standardmäßig sind alle aktiv
-  außer denen in der Liste `DEFAULT_OFF` am Anfang von `public/categories.js`
-  (aktuell nur „NSFW“).
+- Mindestens eine Kategorie muss ausgewählt sein. Beim ersten Öffnen sind nur
+  die Kategorien aus der Liste `DEFAULT_ON` am Anfang von `public/categories.js`
+  aktiv (aktuell nur „Standard“). Jede andere, auch eine neu ergänzte, muss
+  bewusst dazugeschaltet werden.
 - Die Auswahl wird im `localStorage` des Handys gespeichert. Eine entfernte oder
   umbenannte Kategorie wird dabei automatisch ignoriert.
 - Bereits gezeigte Begriffe merkt sich jedes Handy ebenfalls im `localStorage`.
   Erst wenn alle Begriffe der gewählten Kategorien durch sind, fängt es von vorn an.
+  Unter den Kategorien steht, wie viele Begriffe die aktuelle Auswahl enthält
+  und wie viele davon auf diesem Handy noch nicht gezeigt wurden.
 - Auf der Startseite erscheint ein Hinweis „App hinzufügen“, damit das Spiel
   offline läuft. Auf Android/Chrome öffnet der Button den echten Install-Dialog
   des Browsers (`beforeinstallprompt`). iOS bietet dafür keine Schnittstelle,
