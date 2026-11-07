@@ -265,6 +265,22 @@ test.describe("Querformat und Drehung", () => {
     await page.waitForTimeout(300);
     expect((await fits(page, "#word")).ok).toBe(true);
   });
+
+  test("Begriff bleibt außerhalb der Safe Area (Dynamic Island im Querformat)", async ({ page }) => {
+    await page.goto("/index.html");
+    // Safe Area wie beim iPhone im Querformat nachstellen: links/rechts je 59 px
+    // (per CSSOM, ein Style-Tag würde die CSP blockieren)
+    await page.evaluate(() => {
+      const s = document.getElementById("show").style;
+      s.paddingLeft = "59px";
+      s.paddingRight = "59px";
+    });
+    await showTipp(page, "Donaudampfschifffahrtsgesellschaft");
+    const f = await fits(page, "#word");
+    expect(f.ok, JSON.stringify(f)).toBe(true);
+    expect(f.rect[0]).toBeGreaterThanOrEqual(59);
+    expect(f.rect[2]).toBeLessThanOrEqual(844 - 59);
+  });
 });
 
 test.describe("Robustheit", () => {

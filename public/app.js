@@ -211,9 +211,20 @@
   function fitWord() {
     var el = $("word");
     if (!currentWord) return;
+    // Nur der Inhaltsbereich zählt: die Polsterung der Ansicht enthält die
+    // Safe Area (Dynamic Island, abgerundete Ecken), dort darf nichts stehen.
     var box = $("show");
-    var maxW = box.clientWidth - 40;
-    var maxH = box.clientHeight - 40;
+    var cs = getComputedStyle(box);
+    var maxW =
+      box.clientWidth -
+      parseFloat(cs.paddingLeft) -
+      parseFloat(cs.paddingRight) -
+      8;
+    var maxH =
+      box.clientHeight -
+      parseFloat(cs.paddingTop) -
+      parseFloat(cs.paddingBottom) -
+      8;
     var minSize = Math.max(
       28,
       Math.min(window.innerWidth, window.innerHeight) * 0.12,
@@ -247,6 +258,8 @@
     show("show");
     fitWord();
     requestAnimationFrame(fitWord); // nach dem Rendern nochmal exakt messen
+    // Falls die mitgelieferte Schrift noch lädt, mit der echten Schrift nachmessen
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWord);
     keepAwake();
   }
 

@@ -38,6 +38,7 @@ public/
 ├── sw.js                 Offline-Betrieb (Service Worker)
 ├── manifest.webmanifest  Web-App-Manifest für den Home-Screen
 ├── icons/                Favicon und Home-Screen-Icons
+├── fonts/                Handschrift „Patrick Hand“ (OFL) für Geräte ohne passende Systemschrift
 └── CNAME                 die Domain für GitHub Pages
 ```
 

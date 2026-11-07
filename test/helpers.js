@@ -26,10 +26,21 @@ function watchErrors(page) {
 }
 
 // Liegt das Element vollständig im sichtbaren Bereich?
+// In der Breite zählt der Text selbst, nicht die Box: ein zu großer Begriff
+// läuft bei white-space: nowrap über die Box hinaus, ohne sie zu vergrößern.
+// In der Höhe zählt die Box (Zeilenhöhe), der Inhaltsbereich der Schrift ist
+// größer als die sichtbaren Buchstaben.
 async function fits(page, selector) {
   return page.evaluate((sel) => {
     const el = document.querySelector(sel);
-    const r = el.getBoundingClientRect();
+    const r = el.getBoundingClientRect().toJSON();
+    if (el.textContent) {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const t = range.getBoundingClientRect();
+      r.left = t.left;
+      r.right = t.right;
+    }
     return {
       ok: r.left >= 0 && r.top >= 0 && r.right <= innerWidth + 0.5 && r.bottom <= innerHeight + 0.5,
       rect: [r.left, r.top, r.right, r.bottom].map(Math.round),

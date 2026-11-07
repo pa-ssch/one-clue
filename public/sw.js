@@ -2,7 +2,7 @@
 // Strategie: erst Netz, bei Fehler Cache. So sind Änderungen sofort sichtbar,
 // und ohne Empfang läuft die zuletzt geladene Version weiter.
 // Bei Änderungen an den Dateien unten die VERSION hochzählen.
-var VERSION = "one-clue-v4";
+var VERSION = "one-clue-v5";
 var FILES = [
   "./",
   "index.html",
@@ -15,6 +15,8 @@ var FILES = [
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/apple-touch-icon.png",
+  "fonts/patrick-hand-latin.woff2",
+  "fonts/patrick-hand-latin-ext.woff2",
 ];
 
 self.addEventListener("install", function (e) {
