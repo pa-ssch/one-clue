@@ -13,8 +13,8 @@
     "check:sw": "node scripts/check-sw-version.js"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.1",
-    "axe-core": "^4.10.2",
+    "@playwright/test": "^1.65.0",
+    "axe-core": "^4.14.0",
     "http-server": "^14.1.1"
   }
 }
